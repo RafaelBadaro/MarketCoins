@@ -5,7 +5,7 @@
 //  Created by Rafael Badaró on 13/09/23.
 //
 
-import Foundation
+import UIKit
 
 extension URL {
     
@@ -48,6 +48,13 @@ extension Double{
         let numberFormatter = NumberFormatter()
         numberFormatter.numberStyle = .currency
         numberFormatter.locale = Locale(identifier: "pt_BR|")
+        
+        guard let value = numberFormatter.string(from: NSNumber(value: self))
+        else {
+            return String(self)
+        }
+        
+        return value
     }
     
     func toPercentage() -> String {
@@ -57,6 +64,21 @@ extension Double{
             return "\u{2193} \(value)%"
         } else {
             return "\u{2191} \(value)%"
+        }
+    }
+}
+
+extension UIImageView {
+    func loadImage(from url: String) {
+        guard let url = URL(string: url) else { return }
+        
+        DispatchQueue.global().async {
+            do {
+                let data = try Data (contentsOf: url)
+                DispatchQueue.main.async {
+                    self.image = UIImage(data: data)
+                }
+            } catch {}
         }
     }
 }

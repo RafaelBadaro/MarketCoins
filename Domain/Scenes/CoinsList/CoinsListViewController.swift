@@ -14,13 +14,37 @@ import UIKit
 
 protocol CoinsListDisplayLogic: AnyObject
 {
-    func displaySomething(viewModel: CoinsList.Something.ViewModel)
+    func displayGlobalValues(viewModel: CoinsList.FetchGlobalValues.ViewModel)
+    func displayListCoins(viewModel: CoinsList.FetchListCoins.ViewModel)
+    func displayError(erro: String)
 }
 
-class CoinsListViewController: UIViewController, CoinsListDisplayLogic
+class CoinsListViewController: UIViewController
 {
+
+    @IBOutlet weak var globalCollectionView: UICollectionView!{
+        didSet {
+            globalCollectionView.dataSource = self
+        }
+    }
+    
+    @IBOutlet weak var filterCollectionView: UICollectionView! {
+        didSet {
+            filterCollectionView.delegate = self
+            filterCollectionView.dataSource = self
+        }
+    }
+    
+    @IBOutlet weak var listCoinsTableView: UITableView! {
+        didSet {
+            listCoinsTableView.delegate = self
+            listCoinsTableView.dataSource = self
+        }
+    }
     
     
+    private var globalViewModel: CoinsList.FetchGlobalValues.ViewModel?
+    private var coinsViewModel: CoinsList.FetchListCoins.ViewModel?
     
     var interactor: CoinsListBusinessLogic?
     var router: (NSObjectProtocol & CoinsListRoutingLogic & CoinsListDataPassing)?
@@ -72,21 +96,108 @@ class CoinsListViewController: UIViewController, CoinsListDisplayLogic
     override func viewDidLoad()
     {
         super.viewDidLoad()
-        doSomething()
+        doFetchGlobalValues()
+        doFetchCoinsList()
     }
     
     // MARK: Do something
     
     //@IBOutlet weak var nameTextField: UITextField!
     
-    func doSomething()
-    {
-        let request = CoinsList.Something.Request()
-        interactor?.doSomething(request: request)
+    func doFetchGlobalValues(){
+        let request = CoinsList.FetchGlobalValues.Request(baseCoin: "brl")
+        interactor?.doFetchGlobalValues(request: request)
     }
     
-    func displaySomething(viewModel: CoinsList.Something.ViewModel)
-    {
-        //nameTextField.text = viewModel.name
+    func doFetchCoinsList(){
+        let request = CoinsList.FetchListCoins.Request(baseCoin: "brl", orderBy: "market_cap_desc", top: 10, pricePercentage: "1h")
+        interactor?.doFetchListCoins(request: request)
     }
 }
+
+
+extension CoinsListViewController: CoinsListDisplayLogic {
+    
+    func displayGlobalValues(viewModel: CoinsList.FetchGlobalValues.ViewModel){
+        globalViewModel = viewModel
+        DispatchQueue.main.async {
+            self.globalCollectionView.reloadData()
+        }
+    }
+    
+    func displayListCoins(viewModel: CoinsList.FetchListCoins.ViewModel){
+        coinsViewModel = viewModel
+        DispatchQueue.main.async {
+            self.listCoinsTableView.reloadData()
+        }
+    }
+    
+    func displayError(erro: String){
+        print(erro)
+    }
+}
+
+extension CoinsListViewController: UICollectionViewDelegate{
+}
+
+extension CoinsListViewController: UICollectionViewDataSource{
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if collectionView == globalCollectionView {
+            return globalViewModel?.globalValues.count ?? 0
+        }
+        return 4
+    }
+     
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        if collectionView == globalCollectionView {
+            guard let viewModel = globalViewModel else { return UICollectionViewCell() }
+            
+            if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GlobalValuesViewCell.identifier, for: indexPath) as? GlobalValuesViewCell {
+                let globalValues = viewModel.globalValues[indexPath.row]
+                cell.titleLabel.text = globalValues.title
+                cell.valueLabel.text = globalValues.value
+                
+                return cell
+            }
+        }
+        
+        if collectionView == filterCollectionView {
+            if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FilterViewCell.identifier , for: indexPath) as? FilterViewCell {
+                return cell
+            }
+        }
+        
+        return UICollectionViewCell()
+    }
+}
+
+extension CoinsListViewController: UITableViewDelegate{
+}
+
+extension CoinsListViewController: UITableViewDataSource{
+
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return coinsViewModel?.coins.count ?? 0
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        if let cell = tableView.dequeueReusableCell(withIdentifier: CoinViewCell.identifier, for: indexPath) as? CoinViewCell {
+            guard let viewModel = coinsViewModel else { return UITableViewCell() }
+            
+            let coin = viewModel.coins[indexPath.row]
+            
+            cell.rankLabel.text = coin.rank
+            cell.iconImageView.loadImage(from: coin.iconUrl)
+            cell.symbolLabel.text = coin.symbol
+            cell.priceLabel.text = coin.price
+            cell.percentageLabel.text = coin.priceChangePercentage
+            cell.marketCapitalizationLabel.text = coin.marketCapitalization
+            
+            return cell
+        }
+        
+        return UITableViewCell()
+    }
+}
+
+

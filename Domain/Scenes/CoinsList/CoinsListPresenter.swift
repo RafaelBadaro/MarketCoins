@@ -48,6 +48,7 @@ class CoinsListPresenter: CoinsListPresentationLogic
             globalValues: globalValues
         )
         
+        viewController?.displayGlobalValues(viewModel: viewModel)
     }
     
     func presentListCoins(response: [CoinsList.FetchListCoins.Reponse]) {
@@ -73,9 +74,11 @@ class CoinsListPresenter: CoinsListPresentationLogic
         let viewModel = CoinsList.FetchListCoins.ViewModel (
             coins: coins
         )
+        
+        viewController?.displayListCoins(viewModel: viewModel)
     }
     
     func presentError(error: CryptocurrenciesError) {
-        <#code#>
+        viewController?.displayError(erro: error.errorDescription)
     }
 }
