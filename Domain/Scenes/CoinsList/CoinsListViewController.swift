@@ -96,6 +96,10 @@ class CoinsListViewController: UIViewController
     override func viewDidLoad()
     {
         super.viewDidLoad()
+        
+        let nib = UINib(nibName: CoinHeaderView.identifier, bundle: nil)
+        listCoinsTableView.register(nib, forHeaderFooterViewReuseIdentifier: CoinHeaderView.identifier)
+        
         doFetchGlobalValues()
         doFetchCoinsList()
     }
@@ -138,6 +142,7 @@ extension CoinsListViewController: CoinsListDisplayLogic {
 }
 
 extension CoinsListViewController: UICollectionViewDelegate{
+
 }
 
 extension CoinsListViewController: UICollectionViewDataSource{
@@ -172,12 +177,29 @@ extension CoinsListViewController: UICollectionViewDataSource{
 }
 
 extension CoinsListViewController: UITableViewDelegate{
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        if let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: CoinHeaderView.identifier) as? CoinHeaderView{
+            return header
+        }
+        
+        return UIView()
+    }
 }
 
 extension CoinsListViewController: UITableViewDataSource{
 
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 1
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return coinsViewModel?.coins.count ?? 0
+    }
+    
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 56
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
