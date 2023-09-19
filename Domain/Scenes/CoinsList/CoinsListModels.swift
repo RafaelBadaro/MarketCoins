@@ -20,11 +20,11 @@ enum CoinsList
     {
         struct Request
         {
-            let baseCoin: String
+            let baseCoin: CoinsFilterEnum
         }
         struct Response
         {
-            let baseCoin: String
+            let baseCoin: CoinsFilterEnum
             let totalMarketCap: [String: Double]
             let totalVolume: [String: Double]
         }
@@ -40,14 +40,14 @@ enum CoinsList
      
     enum FetchListCoins{
         struct Request {
-            let baseCoin:String
-            let orderBy: String
-            let top: Int
-            let pricePercentage:String
+            let baseCoin: CoinsFilterEnum
+            let orderBy: OrderByFilterEnum
+            let top: TopFilterEnum
+            let pricePercentage: PriceChangePercentageFilterEnum
         }
         
         struct Reponse{
-            let baseCoin: String
+            let baseCoin: CoinsFilterEnum
             let id: String
             let symbol: String
             let name: String

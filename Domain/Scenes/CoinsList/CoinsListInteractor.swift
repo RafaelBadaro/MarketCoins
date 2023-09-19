@@ -50,10 +50,11 @@ class CoinsListInteractor: CoinsListBusinessLogic, CoinsListDataStore
     }
     
     func doFetchListCoins (request: CoinsList.FetchListCoins.Request) {
-        let baseCoin = request.baseCoin
-        let orderBy = request.orderBy
-        let top = request.top
-        let percentagePrice = request.pricePercentage
+        let baseCoin = request.baseCoin.rawValue
+        let orderBy = request.orderBy.rawValue
+        let top = request.top.rawValue
+        let percentagePrice = request.pricePercentage.rawValue
+        
         coinListWorker?.doFetchListCoins(baseCoin:baseCoin,
                                          orderBy: orderBy,
                                          top: top,
@@ -68,13 +69,13 @@ class CoinsListInteractor: CoinsListBusinessLogic, CoinsListDataStore
         })
     }
     
-    private func createGlobalValuesResponse(baseCoin:String, globalModel: GlobalModel?) {
+    private func createGlobalValuesResponse(baseCoin: CoinsFilterEnum, globalModel: GlobalModel?) {
         if let globalModel{
             let totalMarketCap = globalModel.data.totalMarketCap.filter {
-                $0.key == baseCoin
+                $0.key == baseCoin.rawValue
             }
             let totalVolume = globalModel.data.totalVolume.filter {
-                $0.key == baseCoin
+                $0.key == baseCoin.rawValue
             }
             
             let response = CoinsList.FetchGlobalValues.Response(
@@ -90,16 +91,16 @@ class CoinsListInteractor: CoinsListBusinessLogic, CoinsListDataStore
     
     private func createListCoinsResponse(request: CoinsList.FetchListCoins.Request, listCoins: [CoinModel]?){
         if let listCoins {
-            func priceChangePercentage(pricePercentage: String, coin: CoinModel) -> Double {
-                if pricePercentage == "1" {
+            func priceChangePercentage(pricePercentage: PriceChangePercentageFilterEnum , coin: CoinModel) -> Double {
+                
+                switch pricePercentage {
+                case .lastHour:
                     return coin.priceChangePercentage1H ?? 0.0
-                }else if pricePercentage == "24h" {
+                case .oneDay:
                     return coin.priceChangePercentage24H ?? 0.0
-                }
-                else if pricePercentage == "7d" {
+                case .oneWeek:
                     return coin.priceChangePercentage7D ?? 0.0
-                }
-                else {
+                case .oneMonth:
                     return coin.priceChangePercentage30D ?? 0.0
                 }
             }
