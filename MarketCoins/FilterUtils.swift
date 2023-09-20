@@ -27,6 +27,14 @@ case eur = "eur"
         case .eur: return "EUR"
         }
     }
+    
+    var locale: String {
+        switch self {
+        case .brl: return "pt_BR"
+        case .usd: return "en_US"
+        case .eur: return "en_EU"
+        }
+    }
 }
 
 
@@ -51,6 +59,7 @@ enum PriceChangePercentageFilterEnum: String, CaseIterable {
     case oneDay = "24h"
     case oneWeek = "7d"
     case oneMonth = "30d"
+    
     var title: String {
         switch self {
         case .lastHour: return "1 hs"
@@ -59,6 +68,7 @@ enum PriceChangePercentageFilterEnum: String, CaseIterable {
         case .oneMonth: return "1 mes"
         }
     }
+    
 }
 
 

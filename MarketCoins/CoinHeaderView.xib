@@ -117,6 +117,9 @@
                 <constraint firstItem="Ak5-1n-K2k" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="8" id="z6c-Es-10l"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <connections>
+                <outlet property="testFinal" destination="fue-V2-Jlm" id="geb-3e-br4"/>
+            </connections>
             <point key="canvasLocation" x="-374.80916030534348" y="-11.267605633802818"/>
         </view>
     </objects>

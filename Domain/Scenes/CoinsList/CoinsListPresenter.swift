@@ -15,6 +15,7 @@ import UIKit
 protocol CoinsListPresentationLogic
 {
     func presentGlobalValues(response: CoinsList.FetchGlobalValues.Response)
+    func presentErrorForGlobalValues(baseCoin: CoinsFilterEnum)
     func presentListCoins(response: [CoinsList.FetchListCoins.Reponse])
     func presentError(error: CryptocurrenciesError)
 }
@@ -30,7 +31,7 @@ class CoinsListPresenter: CoinsListPresentationLogic
             globalValues.append(
                 CoinsList.FetchGlobalValues.ViewModel.GlobalValues(
                     title: "Capitalizaçao de mercado global",
-                    value: value.toCurrency()
+                    value: value.toCurrency(from: response.baseCoin)
                 )
             )
         }
@@ -39,10 +40,30 @@ class CoinsListPresenter: CoinsListPresentationLogic
             globalValues.append(
                 CoinsList.FetchGlobalValues.ViewModel.GlobalValues(
                     title: "Volume em 24hrs",
-                    value: value.toCurrency()
+                    value: value.toCurrency(from: response.baseCoin)
                 )
-            )
+            ) 
         }
+        
+        let viewModel = CoinsList.FetchGlobalValues.ViewModel(
+            globalValues: globalValues
+        )
+        
+        viewController?.displayGlobalValues(viewModel: viewModel)
+    }
+    
+    func presentErrorForGlobalValues(baseCoin: CoinsFilterEnum) {
+        let globalValues: [CoinsList.FetchGlobalValues.ViewModel.GlobalValues] = [
+            CoinsList.FetchGlobalValues.ViewModel.GlobalValues(
+                title: "Capitalizaçao de mercado global",
+                value: 0.0.toCurrency(from: baseCoin)
+            ),
+            CoinsList.FetchGlobalValues.ViewModel.GlobalValues(
+                title: "Volume em 24hrs",
+                value: 0.0.toCurrency(from: baseCoin)
+            )
+        ]
+        
         
         let viewModel = CoinsList.FetchGlobalValues.ViewModel(
             globalValues: globalValues
@@ -65,9 +86,9 @@ class CoinsListPresenter: CoinsListPresentationLogic
                 rank: rank,
                 iconUrl: response.image,
                 symbol: response.symbol.uppercased(),
-                price: response.currentPrice.toCurrency(),
+                price: response.currentPrice.toCurrency(from: response.baseCoin),
                 priceChangePercentage: response.priceChangePercentage.toPercentage(),
-                marketCapitalization: response.marketCap.toCurrency()
+                marketCapitalization: response.marketCap.toCurrency(from: response.baseCoin)
             )
         }
         

@@ -15,13 +15,13 @@ enum CryptocurrenciesError: Error {
     var errorDescription: String {
         switch self {
         case .internalServerError:
-            return "Ocorreu um erro no servidor. Tente novamente mais tarde!"
+            return "Ocorreu um erro no servidor! Gostaria de tentar novamento?"
         case .badRequestError:
-            return "Sua requisição não foi bem sucedida!"
+            return "Sua requisição não foi bem sucedida! Gostaria de tentar novamento?"
         case .notFoundError:
-            return "O serviço que você está buscando não existe!"
+            return "O serviço que você está buscando não existe! Gostaria de tentar novamento?"
         case .undefinedError:
-            return "Ocorreu um erro. Tente novamente mais tarde!"
+            return "Ocorreu um erro. Tente novamente mais tarde! Gostaria de tentar novamento?"
         }
     }
 }

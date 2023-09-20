@@ -19,7 +19,7 @@ protocol CoinsListDisplayLogic: AnyObject
     func displayError(erro: String)
 }
 
-class CoinsListViewController: UIViewController
+class CoinsListViewController: ViewController
 {
     
     @IBOutlet weak var globalCollectionView: UICollectionView!{
@@ -81,24 +81,26 @@ class CoinsListViewController: UIViewController
     
     var interactor: CoinsListBusinessLogic?
     var router: (NSObjectProtocol & CoinsListRoutingLogic & CoinsListDataPassing)?
+     
+
     
-    // MARK: Object lifecycle
+    // MARK: View lifecycle
     
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?)
+    override func viewDidLoad()
     {
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-        setup()
-    }
-    
-    required init?(coder aDecoder: NSCoder)
-    {
-        super.init(coder: aDecoder)
-        setup()
+        super.viewDidLoad()
+        self.view.addSubviews(coinsFilterView, topFilterView, priceChangePercentageFilterView, orderByFilterView)
+        
+        let nib = UINib(nibName: CoinHeaderView.identifier, bundle: nil)
+        listCoinsTableView.register(nib, forHeaderFooterViewReuseIdentifier: CoinHeaderView.identifier)
+        
+        doFetchGlobalValues()
+        doFetchCoinsList()
     }
     
     // MARK: Setup
     
-    private func setup()
+    override func setup()
     {
         let viewController = self
         let interactor = CoinsListInteractor()
@@ -122,20 +124,6 @@ class CoinsListViewController: UIViewController
                 router.perform(selector, with: segue)
             }
         }
-    }
-    
-    // MARK: View lifecycle
-    
-    override func viewDidLoad()
-    {
-        super.viewDidLoad()
-        self.view.addSubviews(coinsFilterView, topFilterView, priceChangePercentageFilterView, orderByFilterView)
-        
-        let nib = UINib(nibName: CoinHeaderView.identifier, bundle: nil)
-        listCoinsTableView.register(nib, forHeaderFooterViewReuseIdentifier: CoinHeaderView.identifier)
-        
-        doFetchGlobalValues()
-        doFetchCoinsList()
     }
     
     // MARK: Do something
@@ -176,7 +164,14 @@ extension CoinsListViewController: CoinsListDisplayLogic {
     }
     
     func displayError(erro: String){
-        print(erro)
+        
+        DispatchQueue.main.async {
+            self.showError(for: erro){ _ in
+                self.doFetchGlobalValues()
+                self.doFetchCoinsList()
+            }
+        }
+        
     }
 }
 
@@ -248,6 +243,11 @@ extension CoinsListViewController: UITableViewDelegate{
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: CoinHeaderView.identifier) as? CoinHeaderView{
+            
+            if let filter = filtersUtils.displayedFilters.filter({$0.type == .priceChangePercentage}).first {
+                header.setupPriceChangePercentage(from: filter)
+            }
+            
             return header
         }
         
